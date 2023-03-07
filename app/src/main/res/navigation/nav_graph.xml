@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mapFragment">
+
+<fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.googlemaptest.MapFragment"
+        android:label="MapFragment" >
+    <action
+        android:id="@+id/action_mapFragment_to_markerFragment"
+        app:destination="@id/markerFragment" />
+</fragment>
+
+    <fragment
+        android:id="@+id/markerFragment"
+        android:name="com.example.googlemaptest.MarkerFragment"
+        android:label="fragment_marker"
+        tools:layout="@layout/fragment_marker" />
+</navigation>
