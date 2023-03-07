@@ -40,9 +40,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     //지도 객체를 사용할 수 있을 때 자동으로 호출되는 함수
     override fun onMapReady(map: GoogleMap) {
-        val point = LatLng(37.514655, 126.979974)
-        map.addMarker(MarkerOptions().position(point).title("현위치"))
-        map.moveCamera (CameraUpdateFactory.newLatLngZoom(point, 12f))
+
+        val seoul = LatLng(37.566, 126.978)
+        map.moveCamera(CameraUpdateFactory.newLatLng(seoul))
+        map.moveCamera(CameraUpdateFactory.zoomTo(10f))
+        val marker =
+            MarkerOptions()
+                .position(seoul)
+                .title("서울")
+                .snippet("아름다운 도시")
+        map.addMarker(marker)
+
+//        val point = LatLng(37.514655, 126.979974)
+//        map.addMarker(MarkerOptions().position(point).title("현위치"))
+//        map.moveCamera (CameraUpdateFactory.newLatLngZoom(point, 12f))
     }
 
     override fun onStart() {
