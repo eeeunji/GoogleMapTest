@@ -45,13 +45,13 @@ class MarkerFragment : Fragment(), OnMapReadyCallback {
         return view
     }
 
-    private fun createDrawableFromView(context: Context): Bitmap {
+    private fun createDrawableFromView(context: Context, customIcon: Int): Bitmap {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val markerView = inflater.inflate(R.layout.marker_layout, null)
 
         // 배경 설정
         val textView = markerView.findViewById<TextView>(R.id.tv_marker)
-        textView.setBackgroundResource(R.drawable.marker_background)
+        textView.setBackgroundResource(customIcon)
 
         markerView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -64,6 +64,20 @@ class MarkerFragment : Fragment(), OnMapReadyCallback {
         return bitmap
     }
 
+    private fun addMarker(googleMap: GoogleMap, latitude: Double, longitude: Double, title: String?, snippet: String?, icon: Int) {
+        val markerLatLng = LatLng(latitude, longitude)
+        val bitmap = createDrawableFromView(requireContext(), icon)
+        val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
+
+        val markerOptions = MarkerOptions()
+            .position(markerLatLng)
+            .title(title)
+            .snippet(snippet)
+            .icon(customMarker)
+
+        googleMap.addMarker(markerOptions)
+    }
+
 
     //지도 객체를 사용할 수 있을 때 자동으로 호출되는 함수
     override fun onMapReady(map: GoogleMap) {
@@ -72,13 +86,16 @@ class MarkerFragment : Fragment(), OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLng(seoul))
         map.moveCamera(CameraUpdateFactory.zoomTo(12f))
 
-        val bitmap = createDrawableFromView(requireContext())
-        val marker = MarkerOptions()
-            .position(seoul)
-            .title("서울")
-            .snippet("커스텀 마커")
-            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-        map.addMarker(marker)
+//        val bitmap = createDrawableFromView(requireContext())
+//        val marker = MarkerOptions()
+//            .position(seoul)
+//            .title("서울")
+//            .snippet("커스텀 마커")
+//            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+//        map.addMarker(marker)
+
+        addMarker(map,37.566, 126.978, "테스트", "안녕안녕", R.drawable.marker_background)
+        addMarker(map,37.5692, 126.9784, "테스트2", "하이하이", R.drawable.maker_background_y)
     }
 
     override fun onStart() {
