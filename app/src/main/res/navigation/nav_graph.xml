@@ -18,5 +18,9 @@
         android:id="@+id/markerFragment"
         android:name="com.example.googlemaptest.MarkerFragment"
         android:label="fragment_marker"
-        tools:layout="@layout/fragment_marker" />
+        tools:layout="@layout/fragment_marker" >
+        <action
+            android:id="@+id/action_markerFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
 </navigation>

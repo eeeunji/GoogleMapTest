@@ -31,7 +31,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        view.findViewById<Button>(R.id.btn_next).setOnClickListener {
+        view.findViewById<Button>(R.id.btn_go_marker).setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_markerFragment)
         }
 
@@ -43,17 +43,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         val seoul = LatLng(37.566, 126.978)
         map.moveCamera(CameraUpdateFactory.newLatLng(seoul))
-        map.moveCamera(CameraUpdateFactory.zoomTo(10f))
+        map.moveCamera(CameraUpdateFactory.zoomTo(12f))
         val marker =
             MarkerOptions()
                 .position(seoul)
                 .title("서울")
-                .snippet("아름다운 도시")
+                .snippet("기본 마커")
         map.addMarker(marker)
-
-//        val point = LatLng(37.514655, 126.979974)
-//        map.addMarker(MarkerOptions().position(point).title("현위치"))
-//        map.moveCamera (CameraUpdateFactory.newLatLngZoom(point, 12f))
     }
 
     override fun onStart() {
