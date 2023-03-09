@@ -4,25 +4,30 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
 
-class MarkerFragment : Fragment(), OnMapReadyCallback {
+class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener {
 
     private lateinit var mapView: MapView
+//    private val markerList = mutableListOf<LatLng>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +71,9 @@ class MarkerFragment : Fragment(), OnMapReadyCallback {
 
     private fun addMarker(googleMap: GoogleMap, latitude: Double, longitude: Double, title: String?, snippet: String?, icon: Int) {
         val markerLatLng = LatLng(latitude, longitude)
+//        markerList.add(markerLatLng)
+//        Log.d("sband", "markerList: $markerList / markerLatLng: $markerLatLng")
+
         val bitmap = createDrawableFromView(requireContext(), icon)
         val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
 
@@ -94,8 +102,25 @@ class MarkerFragment : Fragment(), OnMapReadyCallback {
 //            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
 //        map.addMarker(marker)
 
+        // 인포 윈도우 커스텀을 위한 어댑터 생성
+        val adapter = CustomInfoWindowAdapter(requireContext())
+
+        // GoogleMap 객체에 인포 윈도우 어댑터 등록
+        map.setInfoWindowAdapter(adapter)
+
         addMarker(map,37.566, 126.978, "테스트", "안녕안녕", R.drawable.marker_background)
         addMarker(map,37.5692, 126.9784, "테스트2", "하이하이", R.drawable.maker_background_y)
+
+        map.setOnMarkerClickListener(this)
+    }
+
+    override fun onMarkerClick(p0: Marker): Boolean {
+        val title = p0.title
+        val snippet = p0.snippet
+
+        Toast.makeText(requireContext(), "$title $snippet", Toast.LENGTH_SHORT).show()
+
+        return false
     }
 
     override fun onStart() {
