@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -24,7 +26,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
 
-class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener {
+class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, OnInfoWindowClickListener, OnMapClickListener {
 
     private lateinit var mapView: MapView
 //    private val markerList = mutableListOf<LatLng>()
@@ -42,6 +44,8 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener {
         mapView = view.findViewById(R.id.markerView) as MapView
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
+
+        view.findViewById<View>(R.id.info_layout).visibility = View.GONE
 
         view.findViewById<Button>(R.id.btn_go_map).setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_markerFragment_to_mapFragment)
@@ -112,8 +116,10 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener {
         addMarker(map,37.5692, 126.9784, "테스트2", "하이하이", R.drawable.maker_background_y)
 
         map.setOnMarkerClickListener(this)
+        map.setOnInfoWindowClickListener(this)
     }
 
+    // 마커 클릭
     override fun onMarkerClick(p0: Marker): Boolean {
         val title = p0.title
         val snippet = p0.snippet
@@ -122,6 +128,34 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener {
 
         return false
     }
+
+    // 인포윈도우 클릭
+    override fun onInfoWindowClick(p0: Marker) {
+        val title = p0.title
+        val snippet = p0.snippet
+
+        view?.findViewById<TextView>(R.id.tv_info_title)?.text = title
+        view?.findViewById<TextView>(R.id.tv_info_snippet)?.text = snippet
+
+        view?.findViewById<View>(R.id.info_layout)!!.visibility = View.VISIBLE
+
+        view?.findViewById<TextView>(R.id.tv_info_title)?.setOnClickListener {
+            Navigation.findNavController(requireView()).navigate(R.id.action_markerFragment_to_infoFragment)
+        }
+
+
+//        Toast.makeText(requireContext(), "$snippet", Toast.LENGTH_SHORT).show()
+
+    }
+
+
+    override fun onMapClick(p0: LatLng) {
+
+        Log.d("sband", "맵 클릭")
+        view?.findViewById<View>(R.id.info_layout)!!.visibility = View.GONE
+
+    }
+
 
     override fun onStart() {
         super.onStart()
@@ -141,6 +175,11 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener {
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
