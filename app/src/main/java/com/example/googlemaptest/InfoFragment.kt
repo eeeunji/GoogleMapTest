@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 
 
 class InfoFragment : Fragment() {
@@ -17,7 +18,15 @@ class InfoFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_info, container, false)
+        val view = inflater.inflate(R.layout.fragment_info, container, false)
+
+        val title = arguments?.getString("title")
+        view.findViewById<TextView>(R.id.tv_title).text = title
+
+        val snippet = arguments?.getString("snippet")
+        view.findViewById<TextView>(R.id.tv_snippet).text = snippet
+        
+        return view
     }
 
 
