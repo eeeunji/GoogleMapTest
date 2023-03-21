@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +20,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm
+import com.google.maps.android.clustering.view.DefaultClusterRenderer
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -78,59 +78,51 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val bitmap = createDrawableFromView(requireContext(), icon)
         val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
 
-        val item = LatLngData(latitude, longitude, title ?: "", snippet ?: "")
-        clusterManager.addItem(item)
-
-        val markerOptions = MarkerOptions()
+        val marker = MarkerOptions()
             .position(markerLatLng)
             .title(title)
             .snippet(snippet)
             .icon(customMarker)
 
-//        map.addMarker(markerOptions)
+        map.addMarker(marker)
+
+        val clusterItem = LatLngData(latitude, longitude, title, snippet)
+        clusterManager.addItem(clusterItem)
     }
 
 
     //지도 객체를 사용할 수 있을 때 자동으로 호출되는 함수
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        clusterManager = ClusterManager(context, map)
-
-        // 클러스터링 아이템을 클릭했을 때의 이벤트 처리
-        map.setOnMarkerClickListener(clusterManager)
-
-        // 마커 클릭 리스너 등록
-        map.setOnInfoWindowClickListener(clusterManager)
-
-        // 클러스터링된 아이템의 마커를 눌렀을 때의 이벤트 처리
-        clusterManager.setOnClusterItemClickListener { item ->
-            //클러스터링된 아이템 클릭 이벤트 처리
-            true
-        }
-
-        // 클러스터링된 마커를 눌렀을 때의 이벤트 처리
-        clusterManager.setOnClusterClickListener { cluster ->
-            //클러스터링된 마커 클릭 이벤트 처리
-            true
-        }
-
-        // 클러스터링 알고리즘 설정
-        val algorithm = NonHierarchicalDistanceBasedAlgorithm<LatLngData>()
-        clusterManager.algorithm = algorithm
-
-        // 지도 카메라가 이동할 때마다 호출되는 리스너 등록
-        map.setOnCameraIdleListener(clusterManager)
-
-        // 초기 마커 추가
-        addMarker(37.566, 126.978, "서울", "서울광장", R.drawable.marker_background)
+        clusterManager = ClusterManager(context, googleMap)
 
         map.uiSettings.isZoomControlsEnabled = true // 확대,축소 컨트롤 활성화
 
-        val seoul = LatLng(37.566, 126.978)
+        val seoul = LatLng(37.5514963, 126.991849)
         map.moveCamera(CameraUpdateFactory.newLatLng(seoul))
-        map.moveCamera(CameraUpdateFactory.zoomTo(12f))
+        map.moveCamera(CameraUpdateFactory.zoomTo(10f))
 
-//        addMarker(37.566, 126.978, "서울", "서울광장", R.drawable.marker_background)
+        // 클러스터링 초기화
+        clusterManager = ClusterManager(requireContext(), map)
+        clusterManager.algorithm = NonHierarchicalDistanceBasedAlgorithm<LatLngData>()
+        clusterManager.renderer = DefaultClusterRenderer(requireContext(), map, clusterManager)
+
+        val items = mutableListOf<LatLngData>()
+
+        items.add(LatLngData(37.5514963, 126.991849, "Marker 1", "Snippet 1"))
+        items.add(LatLngData(37.545631, 127.038175, "Marker 2", "Snippet 2"))
+        items.add(LatLngData(37.514234, 127.062380, "Marker 3", "Snippet 3"))
+        items.add(LatLngData(37.506072, 126.973881, "Marker 4", "Snippet 4"))
+        items.add(LatLngData(37.578334, 126.976906, "Marker 5", "Snippet 5"))
+
+        clusterManager = ClusterManager(requireContext(), map)
+        clusterManager.addItems(items)
+        clusterManager.cluster()
+
+        // 클러스터링 적용
+        map.setOnCameraIdleListener(clusterManager)
+        map.setOnMarkerClickListener(clusterManager)
+
     }
 
     override fun onStart() {

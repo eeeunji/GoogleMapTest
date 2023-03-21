@@ -3,16 +3,8 @@ package com.example.googlemaptest
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 
-class LatLngData (
-    lat: Double,
-    lng: Double,
-    title: String,
-    snippet: String
-) : ClusterItem {
-
-    private val position: LatLng
-    private val title: String
-    private val snippet: String
+class LatLngData(lat: Double, lng: Double, private val title: String?, private val snippet: String?) : ClusterItem {
+    private val position: LatLng = LatLng(lat, lng)
 
     override fun getPosition(): LatLng {
         return position
@@ -24,11 +16,5 @@ class LatLngData (
 
     override fun getSnippet(): String? {
         return snippet
-    }
-
-    init {
-        position = LatLng(lat, lng)
-        this.title = title
-        this.snippet = snippet
     }
 }
