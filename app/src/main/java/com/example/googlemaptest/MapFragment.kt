@@ -19,11 +19,15 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var mapView: MapView
+    private lateinit var map: GoogleMap
+    private lateinit var clusterManager: ClusterManager<LatLngData> // 마커 클러스터링을 위한 ClusterManager 객체
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +45,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         view.findViewById<Button>(R.id.btn_go_marker).setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_markerFragment)
+        }
+        view.findViewById<Button>(R.id.btn_go_heat).setOnClickListener {
+            Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_heatFragment)
         }
 
         return view
@@ -65,11 +72,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         return bitmap
     }
 
-    private fun addMarker(googleMap: GoogleMap, latitude: Double, longitude: Double, title: String?, snippet: String?, icon: Int) {
+    private fun addMarker(latitude: Double, longitude: Double, title: String?, snippet: String?, icon: Int) {
         val markerLatLng = LatLng(latitude, longitude)
 
         val bitmap = createDrawableFromView(requireContext(), icon)
         val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
+
+        val item = LatLngData(latitude, longitude, title ?: "", snippet ?: "")
+        clusterManager.addItem(item)
 
         val markerOptions = MarkerOptions()
             .position(markerLatLng)
@@ -77,18 +87,50 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .snippet(snippet)
             .icon(customMarker)
 
-        googleMap.addMarker(markerOptions)
+//        map.addMarker(markerOptions)
     }
 
 
     //지도 객체를 사용할 수 있을 때 자동으로 호출되는 함수
-    override fun onMapReady(map: GoogleMap) {
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        clusterManager = ClusterManager(context, map)
+
+        // 클러스터링 아이템을 클릭했을 때의 이벤트 처리
+        map.setOnMarkerClickListener(clusterManager)
+
+        // 마커 클릭 리스너 등록
+        map.setOnInfoWindowClickListener(clusterManager)
+
+        // 클러스터링된 아이템의 마커를 눌렀을 때의 이벤트 처리
+        clusterManager.setOnClusterItemClickListener { item ->
+            //클러스터링된 아이템 클릭 이벤트 처리
+            true
+        }
+
+        // 클러스터링된 마커를 눌렀을 때의 이벤트 처리
+        clusterManager.setOnClusterClickListener { cluster ->
+            //클러스터링된 마커 클릭 이벤트 처리
+            true
+        }
+
+        // 클러스터링 알고리즘 설정
+        val algorithm = NonHierarchicalDistanceBasedAlgorithm<LatLngData>()
+        clusterManager.algorithm = algorithm
+
+        // 지도 카메라가 이동할 때마다 호출되는 리스너 등록
+        map.setOnCameraIdleListener(clusterManager)
+
+        // 초기 마커 추가
+        addMarker(37.566, 126.978, "서울", "서울광장", R.drawable.marker_background)
+
+        map.uiSettings.isZoomControlsEnabled = true // 확대,축소 컨트롤 활성화
 
         val seoul = LatLng(37.566, 126.978)
         map.moveCamera(CameraUpdateFactory.newLatLng(seoul))
         map.moveCamera(CameraUpdateFactory.zoomTo(12f))
 
-        addMarker(map,37.566, 126.978, "서울", "서울광장", R.drawable.marker_background)
+//        addMarker(37.566, 126.978, "서울", "서울광장", R.drawable.marker_background)
     }
 
     override fun onStart() {

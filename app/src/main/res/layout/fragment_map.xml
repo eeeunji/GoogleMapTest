@@ -7,11 +7,20 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_go_marker"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="커스텀 마커 맵으로"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_go_heat"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_go_heat"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="히트 맵으로"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_go_marker"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.gms.maps.MapView

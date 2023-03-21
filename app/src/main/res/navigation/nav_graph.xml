@@ -12,6 +12,9 @@
     <action
         android:id="@+id/action_mapFragment_to_markerFragment"
         app:destination="@id/markerFragment" />
+    <action
+        android:id="@+id/action_mapFragment_to_heatFragment"
+        app:destination="@id/heatFragment" />
 </fragment>
 
     <fragment
@@ -31,4 +34,9 @@
         android:name="com.example.googlemaptest.InfoFragment"
         android:label="fragment_info"
         tools:layout="@layout/fragment_info" />
+    <fragment
+        android:id="@+id/heatFragment"
+        android:name="com.example.googlemaptest.HeatFragment"
+        android:label="fragment_heat"
+        tools:layout="@layout/fragment_heat" />
 </navigation>

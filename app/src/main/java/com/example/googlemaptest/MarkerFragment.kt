@@ -1,6 +1,7 @@
 package com.example.googlemaptest
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -36,7 +37,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.maps.android.clustering.ClusterManager
+import javax.sql.DataSource
 
 
 class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, OnInfoWindowClickListener, OnMapClickListener {
@@ -46,14 +50,14 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
 
     lateinit var navController: NavController
 
-    private val DEFAULT_ZOOM_LEVEL = 17f
-    private val CITY_HALL = LatLng(37.566, 126.977)
-
-    private lateinit var googleMap: GoogleMap
-
-    private val PERMISSIONS = arrayOf(
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION)
+//    private val DEFAULT_ZOOM_LEVEL = 17f
+//    private val CITY_HALL = LatLng(37.566, 126.977)
+//
+//    private lateinit var googleMap: GoogleMap
+//
+//    private val PERMISSIONS = arrayOf(
+//        Manifest.permission.ACCESS_COARSE_LOCATION,
+//        Manifest.permission.ACCESS_FINE_LOCATION)
 
 //    private val REQUEST_PERMISSION_CODE = 1
 
@@ -123,12 +127,23 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
 //        view.findViewById<FloatingActionButton>(R.id.btn_my_location).setOnClickListener {
 //            onMyLocationButtonClick()
 //        }
+        val bottomSheet = view.findViewById<View>(R.id.info_layout)
+        val behavior = BottomSheetBehavior.from<View>(bottomSheet!!)
 
-        view.findViewById<View>(R.id.info_layout).visibility = View.GONE
+        bottomSheet.visibility = View.GONE
 
         view.findViewById<Button>(R.id.btn_go_map).setOnClickListener {
             navController.navigate(R.id.action_markerFragment_to_mapFragment)
         }
+
+        behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                Log.d("sband", "onSlide()")
+            }
+        })
 
         return view
     }
@@ -172,6 +187,7 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
 
     //지도 객체를 사용할 수 있을 때 자동으로 호출되는 함수
     override fun onMapReady(map: GoogleMap) {
+
         map.uiSettings.isMyLocationButtonEnabled = true // 내 위치 버튼 활성화
         map.uiSettings.isZoomControlsEnabled = true // 확대,축소 컨트롤 활성화
         map.uiSettings.isMapToolbarEnabled = false //지도 도구 모음 비활성화
@@ -252,6 +268,8 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
 //            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, DEFAULT_ZOOM_LEVEL))
 //        } else Toast.makeText(requireContext(), "위치사용권한 설정에 동의해주세요", Toast.LENGTH_LONG).show()
 //    }
+
+
 
 
     override fun onStart() {
