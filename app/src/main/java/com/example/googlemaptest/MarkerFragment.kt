@@ -1,15 +1,8 @@
 package com.example.googlemaptest
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.location.Location
-import android.location.LocationManager
-import android.location.LocationRequest
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,14 +11,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener
@@ -38,70 +26,17 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.maps.android.clustering.ClusterManager
-import javax.sql.DataSource
-
 
 class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, OnInfoWindowClickListener, OnMapClickListener {
 
     private lateinit var mapView: MapView
-//    private val markerList = mutableListOf<LatLng>()
 
     lateinit var navController: NavController
-
-//    private val DEFAULT_ZOOM_LEVEL = 17f
-//    private val CITY_HALL = LatLng(37.566, 126.977)
-//
-//    private lateinit var googleMap: GoogleMap
-//
-//    private val PERMISSIONS = arrayOf(
-//        Manifest.permission.ACCESS_COARSE_LOCATION,
-//        Manifest.permission.ACCESS_FINE_LOCATION)
-
-//    private val REQUEST_PERMISSION_CODE = 1
-
-//    private fun checkPermissions(): Boolean {
-//        for (permission in PERMISSIONS) {
-//            if (ActivityCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
-//                return false
-//            }
-//        }
-//        return true
-//    }
-//
-//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//
-//        initMap()
-//    }
-//
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
-
-//    private fun initMap() {
-//        mapView.getMapAsync {
-//
-//            googleMap = it
-//
-//            it.uiSettings.isMyLocationButtonEnabled = false
-//            when {
-//                checkPermissions() -> {
-//                    it.isMyLocationEnabled = true
-//                    getMyLocation()?.let { it1 ->
-//                        CameraUpdateFactory.newLatLngZoom(
-//                            it1, DEFAULT_ZOOM_LEVEL)
-//                    }?.let { it2 -> it.moveCamera(it2) }
-//                }
-//                else -> {
-//                    it.moveCamera(CameraUpdateFactory.newLatLngZoom(CITY_HALL, DEFAULT_ZOOM_LEVEL))
-//                }
-//            }
-//        }
-//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -118,15 +53,6 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-//        if (checkPermissions()) {
-//            initMap()
-//        } else {
-//            ActivityCompat.requestPermissions(requireActivity(), PERMISSIONS, REQUEST_PERMISSION_CODE)
-//        }
-//
-//        view.findViewById<FloatingActionButton>(R.id.btn_my_location).setOnClickListener {
-//            onMyLocationButtonClick()
-//        }
         val bottomSheet = view.findViewById<View>(R.id.info_layout)
         val behavior = BottomSheetBehavior.from<View>(bottomSheet!!)
 
@@ -169,8 +95,6 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
 
     private fun addMarker(googleMap: GoogleMap, latitude: Double, longitude: Double, title: String?, snippet: String?, icon: Int) {
         val markerLatLng = LatLng(latitude, longitude)
-//        markerList.add(markerLatLng)
-//        Log.d("sband", "markerList: $markerList / markerLatLng: $markerLatLng")
 
         val bitmap = createDrawableFromView(requireContext(), icon)
         val customMarker = BitmapDescriptorFactory.fromBitmap(bitmap)
@@ -243,7 +167,6 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
 
         }
 
-
 //        Toast.makeText(requireContext(), "$snippet", Toast.LENGTH_SHORT).show()
 
     }
@@ -254,23 +177,6 @@ class MarkerFragment : Fragment(), OnMapReadyCallback, OnMarkerClickListener, On
         Log.d("sband", "맵 클릭")
         view?.findViewById<View>(R.id.info_layout)!!.visibility = View.GONE
     }
-
-//    private fun getMyLocation(): LatLng? {
-//
-//        val locationManager = activity?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-//        val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) ?: return null
-//        return LatLng(location.latitude, location.longitude)
-//    }
-//
-//    private fun onMyLocationButtonClick() {
-//        val myLocation = getMyLocation()
-//        if (myLocation != null) {
-//            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, DEFAULT_ZOOM_LEVEL))
-//        } else Toast.makeText(requireContext(), "위치사용권한 설정에 동의해주세요", Toast.LENGTH_LONG).show()
-//    }
-
-
-
 
     override fun onStart() {
         super.onStart()
