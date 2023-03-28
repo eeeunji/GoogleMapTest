@@ -1,7 +1,6 @@
 package com.example.googlemaptest.view
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -23,14 +22,12 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
-import com.google.gson.Gson
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import dagger.hilt.android.AndroidEntryPoint
 import model.PositionItem
-import java.io.IOException
-import java.nio.charset.Charset
 
 @AndroidEntryPoint
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -45,8 +42,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     )
 
     private val viewModel by activityViewModels<MapViewModel>()
-
-    private val gson = Gson()
 
     private lateinit var mapView: MapView
     private lateinit var map: GoogleMap
@@ -84,18 +79,40 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
         view.findViewById<Button>(R.id.btn_go_marker).setOnClickListener {
-//            Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_markerFragment)
+            Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_markerFragment)
         }
         view.findViewById<Button>(R.id.btn_go_heat).setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_heatFragment)
         }
 
-        viewModel.getPosition()
-        viewModel.livePosition.observe(viewLifecycleOwner, Observer {
-            Log.d("sband", "observer livePosition it: $it")
-        })
+        mapView.getMapAsync { googleMap ->
+            map = googleMap
+            viewModel.getPosition()
+            viewModel.livePosition.observe(viewLifecycleOwner, Observer {
+                Log.d("sband", "observer livePosition it: $it")
+                createMarker(map, it)
+            })
+        }
 
         return view
+    }
+
+    private fun createMarker(googleMap: GoogleMap, positionItem: List<PositionItem>) {
+        val clusterItem = mutableListOf<LatLngData>()
+
+        for (item in positionItem) {
+            val position = LatLng(item.lat, item.lng)
+            val markerOptions = MarkerOptions().position(position).title(item.title).snippet(item.snippet)
+            Log.d("sband", "item: $item")
+
+            val cItem = LatLngData(item.lat, item.lng, item.title, item.snippet)
+            clusterItem.add(cItem)
+        }
+        Log.d("sband", "clusterItem: $clusterItem")
+
+        clusterManager.addItems(clusterItem) // ClusterManager에 마커 추가
+        clusterManager.cluster()
+
     }
 
     override fun onRequestPermissionsResult(
@@ -134,24 +151,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         clusterManager.algorithm = NonHierarchicalDistanceBasedAlgorithm<LatLngData>()
         clusterManager.renderer = DefaultClusterRenderer(requireContext(), map, clusterManager)
 
-        val items = mutableListOf<LatLngData>()
-
-//        items.add(LatLngData(37.5514963, 126.991849, "Marker 1", "Snippet 1"))
-//        items.add(LatLngData(37.545631, 127.038175, "Marker 2", "Snippet 2"))
-//        items.add(LatLngData(37.514234, 127.062380, "Marker 3", "Snippet 3"))
-//        items.add(LatLngData(37.506072, 126.973881, "Marker 4", "Snippet 4"))
-//        items.add(LatLngData(37.578334, 126.976906, "Marker 5", "Snippet 5"))
-
-        clusterManager = ClusterManager(requireContext(), map)
-        clusterManager.addItems(items)
-        clusterManager.cluster()
-
-        // 클러스터링된 아이템의 마커를 눌렀을 때의 이벤트 처리
-//        clusterManager.setOnClusterItemClickListener { item ->
-//            //클러스터링된 아이템 클릭 이벤트 처리
-//            Log.d("sband", "클릭 item")
-//            true
-//        }
+//        clusterManager.addItems(clusterItem)
+//        clusterManager.cluster()
 
         // 클러스터링된 마커를 눌렀을 때의 이벤트 처리
         clusterManager.setOnClusterClickListener { cluster ->
