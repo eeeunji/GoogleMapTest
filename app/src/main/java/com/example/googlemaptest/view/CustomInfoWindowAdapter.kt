@@ -1,9 +1,10 @@
-package com.example.googlemaptest
+package com.example.googlemaptest.view
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import com.example.googlemaptest.R
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
 

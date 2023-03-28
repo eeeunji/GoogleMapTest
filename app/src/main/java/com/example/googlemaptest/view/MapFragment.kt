@@ -1,31 +1,38 @@
-package com.example.googlemaptest
+package com.example.googlemaptest.view
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import com.example.googlemaptest.LatLngData
+import com.example.googlemaptest.viewmodel.MapViewModel
+import com.example.googlemaptest.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
+import dagger.hilt.android.AndroidEntryPoint
+import model.PositionItem
+import java.io.IOException
+import java.nio.charset.Charset
 
-
+@AndroidEntryPoint
 class MapFragment : Fragment(), OnMapReadyCallback {
 
     companion object {
@@ -36,6 +43,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
+
+    private val viewModel by activityViewModels<MapViewModel>()
+
+    private val gson = Gson()
 
     private lateinit var mapView: MapView
     private lateinit var map: GoogleMap
@@ -66,42 +77,32 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             // 권한이 이미 허용된 경우에 실행할 코드
-            Toast.makeText(context,"이미 허용", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(context,"이미 허용", Toast.LENGTH_SHORT).show()
         } else {
             // 권한을 요청하는 다이얼로그 표시
             requestPermissions(locationPermissions, PERMISSION_REQUEST_CODE)
         }
 
         view.findViewById<Button>(R.id.btn_go_marker).setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_markerFragment)
+//            Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_markerFragment)
         }
         view.findViewById<Button>(R.id.btn_go_heat).setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_heatFragment)
         }
 
+        viewModel.getPosition()
+        viewModel.livePosition.observe(viewLifecycleOwner, Observer {
+            Log.d("sband", "observer livePosition it: $it")
+        })
+
         return view
     }
 
-    private fun createDrawableFromView(context: Context, customIcon: Int): Bitmap {
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val markerView = inflater.inflate(R.layout.marker_layout, null)
-
-        // 배경 설정
-        val textView = markerView.findViewById<TextView>(R.id.tv_marker)
-        textView.setBackgroundResource(customIcon)
-
-        markerView.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
-        markerView.layout(0, 0, markerView.measuredWidth, markerView.measuredHeight)
-        val bitmap = Bitmap.createBitmap(markerView.measuredWidth, markerView.measuredHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        markerView.draw(canvas)
-        return bitmap
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
@@ -135,15 +136,29 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         val items = mutableListOf<LatLngData>()
 
-        items.add(LatLngData(37.5514963, 126.991849, "Marker 1", "Snippet 1"))
-        items.add(LatLngData(37.545631, 127.038175, "Marker 2", "Snippet 2"))
-        items.add(LatLngData(37.514234, 127.062380, "Marker 3", "Snippet 3"))
-        items.add(LatLngData(37.506072, 126.973881, "Marker 4", "Snippet 4"))
-        items.add(LatLngData(37.578334, 126.976906, "Marker 5", "Snippet 5"))
+//        items.add(LatLngData(37.5514963, 126.991849, "Marker 1", "Snippet 1"))
+//        items.add(LatLngData(37.545631, 127.038175, "Marker 2", "Snippet 2"))
+//        items.add(LatLngData(37.514234, 127.062380, "Marker 3", "Snippet 3"))
+//        items.add(LatLngData(37.506072, 126.973881, "Marker 4", "Snippet 4"))
+//        items.add(LatLngData(37.578334, 126.976906, "Marker 5", "Snippet 5"))
 
         clusterManager = ClusterManager(requireContext(), map)
         clusterManager.addItems(items)
         clusterManager.cluster()
+
+        // 클러스터링된 아이템의 마커를 눌렀을 때의 이벤트 처리
+//        clusterManager.setOnClusterItemClickListener { item ->
+//            //클러스터링된 아이템 클릭 이벤트 처리
+//            Log.d("sband", "클릭 item")
+//            true
+//        }
+
+        // 클러스터링된 마커를 눌렀을 때의 이벤트 처리
+        clusterManager.setOnClusterClickListener { cluster ->
+            //클러스터링된 마커 클릭 이벤트 처리
+            Log.d("sband", "클릭 cluster: ${cluster.size}개의 핀")
+            true
+        }
 
         // 클러스터링 적용
         map.setOnCameraIdleListener(clusterManager)
@@ -169,6 +184,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+    }
+
+    // 앱이 일시정지되거나 다시 시작될 때 MapView의 상태를 저장하고 복원하는 데 중요
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {

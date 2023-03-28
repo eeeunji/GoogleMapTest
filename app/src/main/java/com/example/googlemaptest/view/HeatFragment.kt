@@ -1,4 +1,4 @@
-package com.example.googlemaptest
+package com.example.googlemaptest.view
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -11,9 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.googlemaptest.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -23,9 +23,10 @@ import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.maps.android.heatmaps.Gradient
 import com.google.maps.android.heatmaps.HeatmapTileProvider
 import com.google.maps.android.heatmaps.WeightedLatLng
+import dagger.hilt.android.AndroidEntryPoint
 import org.json.JSONArray
 
-
+@AndroidEntryPoint
 class HeatFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var mapView: MapView
