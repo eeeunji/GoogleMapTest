@@ -18,4 +18,10 @@ object RepositoryModule {
     fun providePositionRepository(@ApplicationContext appContext: Context): PositionRepository {
         return PositionRepositoryImpl(appContext)
     }
+
+    @Provides
+    @Singleton
+    fun provideHeatRepository(@ApplicationContext appContext: Context): HeatRepository {
+        return HeatRepositoryImpl(appContext)
+    }
 }

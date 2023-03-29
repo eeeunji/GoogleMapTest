@@ -38,5 +38,9 @@
         android:id="@+id/heatFragment"
         android:name="com.example.googlemaptest.view.HeatFragment"
         android:label="fragment_heat"
-        tools:layout="@layout/fragment_heat" />
+        tools:layout="@layout/fragment_heat" >
+        <action
+            android:id="@+id/action_heatFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
 </navigation>

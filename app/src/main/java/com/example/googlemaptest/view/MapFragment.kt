@@ -157,14 +157,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun showMyLocation(location: Location) {
         val latLng = LatLng(location.latitude, location.longitude)
         val markerOptions = MarkerOptions().position(latLng)
+            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
         myMarker = map.addMarker(markerOptions)
 
         // 반경 추가
         val circleOptions = CircleOptions()
             .radius(500.0)
-            .strokeColor(Color.RED)
+            .strokeColor(Color.BLUE)
             .center(LatLng(location.latitude, location.longitude))
-            .fillColor(Color.argb(40,  255, 0, 0))
+            .fillColor(Color.argb(35,  0, 0, 255))
 
         myCircle = map.addCircle(circleOptions)
 
@@ -199,6 +200,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             //클러스터링된 마커 클릭 이벤트 처리
             Log.d("sband", "클릭 cluster: ${cluster.size}개의 핀")
             true
+        }
+
+        // 맵 클릭하면 현재 위치 표시 지우기
+        map.setOnMapClickListener {
+            removeMyLocation()
         }
 
         // 클러스터링 적용
