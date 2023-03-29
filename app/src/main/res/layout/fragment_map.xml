@@ -19,8 +19,17 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="히트 맵으로"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_now_location"
         app:layout_constraintStart_toEndOf="@+id/btn_go_marker"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_now_location"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="현재 위치"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_go_heat"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.gms.maps.MapView
