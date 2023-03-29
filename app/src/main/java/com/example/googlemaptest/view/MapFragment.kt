@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -71,11 +72,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            // 권한이 이미 허용된 경우에 실행할 코드
+            // 권한이 이미 허용된 경우
 //            Toast.makeText(context,"이미 허용", Toast.LENGTH_SHORT).show()
         } else {
             // 권한을 요청하는 다이얼로그 표시
-            requestPermissions(locationPermissions, PERMISSION_REQUEST_CODE)
+            requestLocationPermission.launch(locationPermissions)
         }
 
         view.findViewById<Button>(R.id.btn_go_marker).setOnClickListener {
@@ -112,28 +113,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         clusterManager.addItems(clusterItem) // ClusterManager에 마커 추가
         clusterManager.cluster()
-
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                // 권한 허용됏을 때
+    private val requestLocationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true && permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
                 Toast.makeText(requireContext(), "허용", Toast.LENGTH_SHORT).show()
             } else {
-                // 권한 거부햇을때
                 // API 30부터 권한을 두 번 이상 거부한다면 권한 요청 대화 상자가 표시되지 않음 -> 다시 묻지 않음과 동일 (직접 사용자가 설정에서 켜줘야함)
                 Toast.makeText(requireContext(), "거부, 앱 종료", Toast.LENGTH_SHORT).show()
                 requireActivity().finish()
-
             }
         }
-    }
 
 
     //지도 객체를 사용할 수 있을 때 자동으로 호출되는 함수
