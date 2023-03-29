@@ -17,7 +17,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -29,10 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.Circle
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.algo.NonHierarchicalDistanceBasedAlgorithm
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -55,8 +51,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     // 마커 클러스터링을 위한 ClusterManager 객체
     private lateinit var clusterManager: ClusterManager<LatLngData>
 
-    // 내 위치 반경
+    // 현재 내 위치
     private var myCircle: Circle? = null
+    private var myMarker: Marker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,15 +145,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     // 위치가 업데이트될 때마다 호출됨
                     override fun onLocationChanged(location: Location) {
                         Log.d("sband", "location : $location")
+                        removeMyLocation()
                         showMyLocation(location)
-                        removeCircle()
-                        val circleOptions = CircleOptions()
-                            .radius(500.0)
-                            .strokeColor(Color.RED)
-                            .center(LatLng(location.latitude, location.longitude))
-                            .fillColor(Color.argb(40,  255, 0, 0))
-
-                        myCircle = map.addCircle(circleOptions)
                         locationManager.removeUpdates(this)
                     }
                 })
@@ -165,12 +155,26 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun showMyLocation(location: Location) {
-        map.animateCamera(
-            CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 15f)
-        )
+        val latLng = LatLng(location.latitude, location.longitude)
+        val markerOptions = MarkerOptions().position(latLng)
+        myMarker = map.addMarker(markerOptions)
+
+        // 반경 추가
+        val circleOptions = CircleOptions()
+            .radius(500.0)
+            .strokeColor(Color.RED)
+            .center(LatLng(location.latitude, location.longitude))
+            .fillColor(Color.argb(40,  255, 0, 0))
+
+        myCircle = map.addCircle(circleOptions)
+
+        // 지도 이동
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
     }
 
-    private fun removeCircle() {
+    private fun removeMyLocation() {
+        myMarker?.remove()
+        myMarker = null
         myCircle?.remove()
         myCircle = null
     }
