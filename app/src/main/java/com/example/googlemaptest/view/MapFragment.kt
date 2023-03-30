@@ -54,6 +54,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     // 현재 내 위치
     private var myCircle: Circle? = null
     private var myMarker: Marker? = null
+    private lateinit var locationManager: LocationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +64,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("sband", "onCreateView()")
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
         mapView = view.findViewById(R.id.mapView) as MapView
@@ -133,25 +135,21 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
     private fun getMyLocation(context: Context): Location? {
-        val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
+        locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
 
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER, 0, 0f, object : LocationListener {
-                    // 위치가 업데이트될 때마다 호출됨
-                    override fun onLocationChanged(location: Location) {
-                        Log.d("sband", "location : $location")
-                        removeMyLocation()
-                        showMyLocation(location)
-                        locationManager.removeUpdates(this)
-                    }
-                })
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, myLocationListener)
         }
         return null
+    }
+
+    private var myLocationListener: LocationListener = object : LocationListener {
+        // 위치가 업데이트될 때마다 호출됨
+        override fun onLocationChanged(location: Location) {
+            Log.d("sband", "location : $location")
+            removeMyLocation()
+            showMyLocation(location)
+        }
     }
 
     private fun showMyLocation(location: Location) {
@@ -205,6 +203,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // 맵 클릭하면 현재 위치 표시 지우기
         map.setOnMapClickListener {
             removeMyLocation()
+            locationManager.removeUpdates(myLocationListener)
+            Log.d("sband", "setOnMapClickListener()")
         }
 
         // 클러스터링 적용
@@ -214,23 +214,29 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onStart() {
+        Log.d("sband", "onStart()")
         super.onStart()
         mapView.onStart()
     }
 
     override fun onStop() {
+        Log.d("sband", "onStop()")
         super.onStop()
         mapView.onStop()
     }
 
     override fun onResume() {
+        Log.d("sband", "onResume()")
         super.onResume()
         mapView.onResume()
+        removeMyLocation()
     }
 
     override fun onPause() {
+        Log.d("sband", "onPause()")
         super.onPause()
         mapView.onPause()
+        locationManager.removeUpdates(myLocationListener)
     }
 
     // 앱이 일시정지되거나 다시 시작될 때 MapView의 상태를 저장하고 복원하는 데 중요
@@ -245,6 +251,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onDestroy() {
+        Log.d("sband", "onDestroy()")
         super.onDestroy()
         mapView.onDestroy()
     }
