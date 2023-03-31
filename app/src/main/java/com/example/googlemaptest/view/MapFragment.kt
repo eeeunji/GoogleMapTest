@@ -67,6 +67,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         Log.d("sband", "onCreateView()")
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
+        locationManager = requireContext().getSystemService(LOCATION_SERVICE) as LocationManager
+
         mapView = view.findViewById(R.id.mapView) as MapView
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
@@ -135,8 +137,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
     private fun getMyLocation(context: Context): Location? {
-        locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
-
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0f, myLocationListener)
         }
@@ -150,6 +150,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             removeMyLocation()
             showMyLocation(location)
         }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+
     }
 
     private fun showMyLocation(location: Location) {
